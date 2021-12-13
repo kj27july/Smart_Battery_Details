@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         apiList.add("Present Capacity:" + present_capacity)
         apiList.add("Time to empty charged: " + time_to_empty)
         apiList.add("Time to fully charged: " + time_to_full)
-        apiList.add("charge remaining: " + present_charge)
+        apiList.add("Charge remaining: " + present_charge)
         adapter?.notifyDataSetChanged()
     }
 
