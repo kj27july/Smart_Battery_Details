@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         apiList.add("Battery usage number: " + battery_usage_numb)
         apiList.add("Base cumulative charge: " + base_cumulative_charge)
         apiList.add("Seconds since first use: " + seconds_since_first_use)
-        apiList.add("Present Capacity" + present_capacity)
+        apiList.add("Present Capacity:" + present_capacity)
         apiList.add("Time to empty charged: " + time_to_empty)
         apiList.add("Time to fully charged: " + time_to_full)
         apiList.add("charge remaining: " + present_charge)
