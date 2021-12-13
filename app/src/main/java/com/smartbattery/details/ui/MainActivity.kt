@@ -8,42 +8,45 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import com.smartbattery.details.R
-import com.smartbattery.details.receiver.BatteryReceiver
+import com.smartbattery.details.receiver.ZebraBatteryReceiver
 import com.smartbattery.details.receiver.PanasonicBatteryReceiver
 
 class MainActivity : AppCompatActivity() {
-    private var batteryReceiver: BroadcastReceiver? = null
+    private var zebraBatteryReceiver: BroadcastReceiver? = null
     private var panasonicBatteryReceiver: BroadcastReceiver? = null
 
     var apiList = ArrayList<String>()
     var adapter: ArrayAdapter<*>? = null
 
-    lateinit var health_percentage: String
-    lateinit var battery_usage_numb: String
-    lateinit var base_cumulative_charge: String
-    lateinit var seconds_since_first_use: String
-    lateinit var present_capacity: String
-    lateinit var time_to_empty: String
-    lateinit var time_to_full: String
-    lateinit var present_charge: String
+    var health_percentage: String? = null
+    var battery_usage_numb: String? = null
+    var base_cumulative_charge: String? = null
+    var seconds_since_first_use: String? = null
+    var present_capacity: String? = null
+    var time_to_empty: String? = null
+    var time_to_full: String? = null
+    var present_charge: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val zebraApiList = findViewById<ListView>(R.id.zebra_api_list)
+        val zebraApiList = findViewById<ListView>(R.id.api_list)
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, apiList)
         zebraApiList.adapter = adapter
 
         //Zebra  Battery info
-        batteryReceiver = BatteryReceiver()
+        zebraBatteryReceiver = ZebraBatteryReceiver()
         val zebraFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        registerReceiver(batteryReceiver, zebraFilter)
+        val batteryStatus = registerReceiver(zebraBatteryReceiver, zebraFilter)
+        if (batteryStatus != null) handleZebraIntent(batteryStatus)
 
         //Panasonic  Battery info
+        panasonicBatteryReceiver = PanasonicBatteryReceiver()
         val panasonicFilter = IntentFilter()
         panasonicFilter.addAction("com.panasonic.psn.batteryhealthcheck.api.RESPONSE ")
-        registerReceiver(panasonicBatteryReceiver, panasonicFilter)
+        val panasonicBatteryStatus = registerReceiver(panasonicBatteryReceiver, panasonicFilter)
+        if (panasonicBatteryStatus != null) handlePanasonicIntent(panasonicBatteryStatus)
 
         // Send “Execute” broadcast Intent after prior preparation
         val intentExecute = Intent()
@@ -53,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(batteryReceiver)
+        unregisterReceiver(zebraBatteryReceiver)
         unregisterReceiver(panasonicBatteryReceiver)
     }
 
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         return intent.extras!!.getInt("battery_type")
     }
 
-    fun handleBatteryIntent(intent: Intent) {
+    fun handleZebraIntent(intent: Intent) {
         val mfg = intent.extras!!.getString("mfg", "unknown")
         val partnumber = intent.extras!!.getString("partnumber", "unknown")
         val serialnumber = intent.extras!!.getString("serialnumber", "unknown")
@@ -83,14 +86,13 @@ class MainActivity : AppCompatActivity() {
             present_charge = intent.extras!!.getInt("present_charge", -1).toString()
         }
         apiList.clear()
-
-        apiList.add("=== ZEBRA===")
-        apiList.add("=== STANDARD API ===")
+        apiList.add("=== ZEBRA ===")
+        apiList.add("=== ZEBRA STANDARD API ===")
         apiList.add("Manufacture Date: " + mfg)
         apiList.add("Serial Number: " + serialnumber)
         apiList.add("Health percentage: " + health_percentage)
 
-        apiList.add("===NON STANDARD API ===")
+        apiList.add("=== ZEBRA NON STANDARD API ===")
         apiList.add("Part number: " + partnumber)
         apiList.add("Rated capacity: " + ratedcapacity)
         apiList.add("Battery decommission: " + battery_decommission)
@@ -102,6 +104,7 @@ class MainActivity : AppCompatActivity() {
         apiList.add("Time to empty charged: " + time_to_empty)
         apiList.add("Time to fully charged: " + time_to_full)
         apiList.add("charge remaining: " + present_charge)
+        adapter?.notifyDataSetChanged()
     }
 
     fun handlePanasonicIntent(intent: Intent) {
@@ -120,7 +123,7 @@ class MainActivity : AppCompatActivity() {
 
         apiList.clear()
         apiList.add("=== PANASONIC ===")
-        apiList.add("=== STANDARD API ===")
+        apiList.add("=== PANASONIC STANDARD API ===")
         apiList.add("Manufacture Date: " + date)
         apiList.add("Serial Number: " + serial)
         apiList.add("Health percentage: " + health)
@@ -128,10 +131,11 @@ class MainActivity : AppCompatActivity() {
         apiList.add("Serial Number2: " + serial_2)
         apiList.add("Health percentage2: " + health_2)
 
-        apiList.add("===NON STANDARD API ===")
+        apiList.add("=== PANASONIC NON STANDARD API ===")
         apiList.add("Cycle Count : " + count)
         apiList.add("Remaining Battery : " + remaining)
         apiList.add("Cycle Count2 : " + count_2)
         apiList.add("Remaining Battery2 : " + remaining_2)
+        adapter?.notifyDataSetChanged()
     }
 }
