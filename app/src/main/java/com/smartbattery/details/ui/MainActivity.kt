@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         else if (Build.MANUFACTURER.equals("panasonic", false)) {
             panasonicBatteryReceiver = PanasonicBatteryReceiver(instance!!)
             val panasonicFilter = IntentFilter()
-            panasonicFilter.addAction("com.panasonic.psn.batteryhealthcheck.api.RESPONSE ")
+            panasonicFilter.addAction("com.panasonic.psn.batteryhealthcheck.api.RESPONSE")
             val panasonicBatteryStatus = registerReceiver(panasonicBatteryReceiver, panasonicFilter)
             if (panasonicBatteryStatus != null) handlePanasonicIntent(panasonicBatteryStatus)
 
