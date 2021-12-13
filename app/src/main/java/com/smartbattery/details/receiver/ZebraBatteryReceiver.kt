@@ -7,12 +7,12 @@ import android.util.Log
 import com.smartbattery.details.ui.MainActivity
 import java.lang.Exception
 
-class BatteryReceiver : BroadcastReceiver() {
+class ZebraBatteryReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         try {
             if (intent != null && Intent.ACTION_BATTERY_CHANGED == intent.action) {
-                MainActivity().handleBatteryIntent(intent)
+                MainActivity().handleZebraIntent(intent)
             }
 
         } catch (e: Exception) {
