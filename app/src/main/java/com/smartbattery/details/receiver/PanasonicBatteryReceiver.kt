@@ -7,11 +7,11 @@ import android.util.Log
 import com.smartbattery.details.ui.MainActivity
 import java.lang.Exception
 
-class PanasonicBatteryReceiver : BroadcastReceiver() {
+class PanasonicBatteryReceiver(private val instance: MainActivity) : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         try {
             if (intent != null && intent!!.action == "com.panasonic.psn.batteryhealthcheck.api.RESPONSE") {
-                MainActivity().handlePanasonicIntent(intent)
+                instance.handlePanasonicIntent(intent)
             }
 
         } catch (e: Exception) {
