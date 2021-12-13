@@ -118,6 +118,7 @@ class MainActivity : AppCompatActivity() {
         val count_2 = intent.getIntExtra("count2", 0)
         val remaining_2 = intent.getIntExtra("remaining2", 0)
 
+        apiList.clear()
         apiList.add("=== PANASONIC ===")
         apiList.add("=== STANDARD API ===")
         apiList.add("Manufacture Date: " + date)
