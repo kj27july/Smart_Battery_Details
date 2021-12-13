@@ -38,9 +38,9 @@ class MainActivity : AppCompatActivity() {
         batteryReceiver = BatteryReceiver()
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val batteryStatus = registerReceiver(batteryReceiver, filter)
-        if (batteryStatus != null) {
-            handleBatteryIntent(batteryStatus) //calling twice
-        }
+//        if (batteryStatus != null) {
+//            handleBatteryIntent(batteryStatus) //calling twice
+//        }
     }
 
     override fun onDestroy() {
