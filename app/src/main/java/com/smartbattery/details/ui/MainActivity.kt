@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         zebraApiList.adapter = adapter
 
         //Zebra  Battery info
-        if (Build.MANUFACTURER.equals("zebra", false)) {
+        if (Build.MANUFACTURER.equals("Zebra Technologies", true)) {
             zebraBatteryReceiver = ZebraBatteryReceiver(instance!!)
             val zebraFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             val batteryStatus = registerReceiver(zebraBatteryReceiver, zebraFilter)
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         //Panasonic  Battery info
-        else if (Build.MANUFACTURER.equals("panasonic", false)) {
+        else if (Build.MANUFACTURER.equals("panasonic", true)) {
             panasonicBatteryReceiver = PanasonicBatteryReceiver(instance!!)
             val panasonicFilter = IntentFilter()
             panasonicFilter.addAction("com.panasonic.psn.batteryhealthcheck.api.RESPONSE")
