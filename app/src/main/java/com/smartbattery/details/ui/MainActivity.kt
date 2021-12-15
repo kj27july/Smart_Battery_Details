@@ -58,8 +58,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(zebraBatteryReceiver)
-        unregisterReceiver(panasonicBatteryReceiver)
+//        unregisterReceiver(zebraBatteryReceiver)
+//        unregisterReceiver(panasonicBatteryReceiver)
     }
 
     private fun getBatteryType(intent: Intent): Int {
