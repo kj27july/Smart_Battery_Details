@@ -56,6 +56,12 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Device not supported", Toast.LENGTH_LONG).show()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if(zebraBatteryReceiver!=null) unregisterReceiver(zebraBatteryReceiver)
+        else if(panasonicBatteryReceiver!=null) unregisterReceiver(panasonicBatteryReceiver)
+    }
+
     private fun getBatteryType(intent: Intent): Int {
         return intent.extras!!.getInt("battery_type")
     }
