@@ -135,12 +135,15 @@ class MainActivity : AppCompatActivity() {
         panasonicNonStdMap["health"] = intent.getIntExtra("health", 0).toString()
         panasonicStdMap["count"] = intent.getIntExtra("count", 0).toString()
         //FZ-A3 Only from here
-        panasonicNonStdMap["remaining"] = intent.getIntExtra("remaining", 0).toString()
-        panasonicStdMap["serial2"] = intent.getStringExtra("serial2") ?: "unknown"
-        panasonicNonStdMap["product_date2"] = intent.getStringExtra("product_date2") ?: "unknown"
-        panasonicNonStdMap["health2"] = intent.getIntExtra("health2", 0).toString()
-        panasonicStdMap["count2"] = intent.getIntExtra("count2", 0).toString()
-        panasonicNonStdMap["remaining2"] = intent.getIntExtra("remaining2", 0).toString()
+        if (Build.MODEL.equals("FZ-A3", true) || Build.MODEL.equals("Toughbook FZ-A3", true)) {
+            panasonicNonStdMap["remaining"] = intent.getIntExtra("remaining", 0).toString()
+            panasonicStdMap["serial2"] = intent.getStringExtra("serial2") ?: "unknown"
+            panasonicNonStdMap["product_date2"] =
+                intent.getStringExtra("product_date2") ?: "unknown"
+            panasonicNonStdMap["health2"] = intent.getIntExtra("health2", 0).toString()
+            panasonicStdMap["count2"] = intent.getIntExtra("count2", 0).toString()
+            panasonicNonStdMap["remaining2"] = intent.getIntExtra("remaining2", 0).toString()
+        }
 
         stdApiTable = findViewById(R.id.standard_api_table)
         stdApiTable.removeAllViews()
