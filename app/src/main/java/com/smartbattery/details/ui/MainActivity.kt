@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.smartbattery.details.R
 import com.smartbattery.details.receiver.ZebraBatteryReceiver
@@ -43,10 +44,15 @@ class MainActivity : AppCompatActivity() {
         }
         //Panasonic  Battery info
         else if (Build.MANUFACTURER.equals("panasonic", true)) {
+            Toast.makeText(this, "inside panasonic", Toast.LENGTH_LONG).show()
+            Log.d("kajal", "inPanasonic")
+
             panasonicBatteryReceiver = PanasonicBatteryReceiver(instance!!)
             val panasonicFilter = IntentFilter()
             panasonicFilter.addAction("com.panasonic.psn.batteryhealthcheck.api.RESPONSE")
             registerReceiver(panasonicBatteryReceiver, panasonicFilter)
+            Thread.sleep(5000)
+            Log.d("kajal", "inPanasonic")
 
             //  Send “Execute” broadcast Intent after prior preparation
             val intentExecute = Intent()
@@ -58,8 +64,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(zebraBatteryReceiver!=null) unregisterReceiver(zebraBatteryReceiver)
-        else if(panasonicBatteryReceiver!=null) unregisterReceiver(panasonicBatteryReceiver)
+        if (zebraBatteryReceiver != null) unregisterReceiver(zebraBatteryReceiver)
+        else if (panasonicBatteryReceiver != null) unregisterReceiver(panasonicBatteryReceiver)
     }
 
     private fun getBatteryType(intent: Intent): Int {
@@ -67,17 +73,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun handleZebraIntent(intent: Intent) {
+        Log.d("kajal", intent.extras!!.getString("mfd", "unknown"))
         zebraNonStdMap["mfd"] = intent.extras!!.getString("mfd", "unknown")
         zebraNonStdMap["partnumber"] = intent.extras!!.getString("partnumber", "unknown")
         zebraStdMap["serialnumber"] = intent.extras!!.getString("serialnumber", "unknown")
         zebraNonStdMap["ratedcapacity"] = intent.extras!!.getInt("ratedcapacity").toString()
         zebraNonStdMap["battery_decommission"] =
-            intent.extras!!.getInt("battery_decommission",-1).toString()
+            intent.extras!!.getInt("battery_decommission", -1).toString()
         zebraNonStdMap["total_cumulative_charge"] =
             intent.extras!!.getInt("total_cumulative_charge").toString()
 
         if (getBatteryType(intent) == 202 || getBatteryType(intent) == 206) {
-            zebraStdMap["battery_usage_numb"] =
+            zebraNonStdMap["battery_usage_numb"] =
                 intent.extras!!.getInt("battery_usage_numb").toString()
         }
 
@@ -133,7 +140,7 @@ class MainActivity : AppCompatActivity() {
         panasonicStdMap["serial"] = intent.getStringExtra("serial") ?: "unknown"
         panasonicNonStdMap["product_date"] = intent.getStringExtra("product_date") ?: "unknown"
         panasonicNonStdMap["health"] = intent.getIntExtra("health", 0).toString()
-        panasonicStdMap["count"] = intent.getIntExtra("count", 0).toString()
+        panasonicNonStdMap["count"] = intent.getIntExtra("count", 0).toString()
         //FZ-A3 Only from here
         if (Build.MODEL.equals("FZ-A3", true) || Build.MODEL.equals("Toughbook FZ-A3", true)) {
             panasonicNonStdMap["remaining"] = intent.getIntExtra("remaining", 0).toString()
@@ -141,7 +148,7 @@ class MainActivity : AppCompatActivity() {
             panasonicNonStdMap["product_date2"] =
                 intent.getStringExtra("product_date2") ?: "unknown"
             panasonicNonStdMap["health2"] = intent.getIntExtra("health2", 0).toString()
-            panasonicStdMap["count2"] = intent.getIntExtra("count2", 0).toString()
+            panasonicNonStdMap["count2"] = intent.getIntExtra("count2", 0).toString()
             panasonicNonStdMap["remaining2"] = intent.getIntExtra("remaining2", 0).toString()
         }
 
