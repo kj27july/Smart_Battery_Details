@@ -36,36 +36,38 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         instance = this
 
-        //Zebra  Battery info
-        if (Build.MANUFACTURER.equals("Zebra Technologies", true)) {
-            zebraBatteryReceiver = ZebraBatteryReceiver(instance!!)
-            val zebraFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-            registerReceiver(zebraBatteryReceiver, zebraFilter)
-        }
-        //Panasonic  Battery info
-        else if (Build.MANUFACTURER.equals("panasonic", true)) {
-            Toast.makeText(this, "inside panasonic", Toast.LENGTH_LONG).show()
+        if (Build.MANUFACTURER.equals("panasonic", true)) {
             Log.d("kajal", "inPanasonic")
-
             panasonicBatteryReceiver = PanasonicBatteryReceiver(instance!!)
             val panasonicFilter = IntentFilter()
             panasonicFilter.addAction("com.panasonic.psn.batteryhealthcheck.api.RESPONSE")
             registerReceiver(panasonicBatteryReceiver, panasonicFilter)
-            Thread.sleep(5000)
-            Log.d("kajal", "inPanasonic")
 
             //  Send “Execute” broadcast Intent after prior preparation
             val intentExecute = Intent()
             intentExecute.action = "com.panasonic.psn.batteryhealthcheck.api.EXECUTE"
             sendBroadcast(intentExecute)
+            Log.d("kajal", " Broadcast end")
+        } else if (Build.MANUFACTURER.equals("Zebra Technologies", true)) {
+            zebraBatteryReceiver = ZebraBatteryReceiver(instance!!)
+            val zebraFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            registerReceiver(zebraBatteryReceiver, zebraFilter)
         } else
             Toast.makeText(this, "Device not supported", Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (zebraBatteryReceiver != null) unregisterReceiver(zebraBatteryReceiver)
-        else if (panasonicBatteryReceiver != null) unregisterReceiver(panasonicBatteryReceiver)
+        if (Build.MANUFACTURER.equals(
+                "Zebra Technologies",
+                true
+            ) && zebraBatteryReceiver != null
+        ) unregisterReceiver(zebraBatteryReceiver)
+        else if (Build.MANUFACTURER.equals(
+                "panasonic",
+                true
+            ) && panasonicBatteryReceiver != null
+        ) unregisterReceiver(panasonicBatteryReceiver)
     }
 
     private fun getBatteryType(intent: Intent): Int {
@@ -137,6 +139,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun handlePanasonicIntent(intent: Intent) {
+        Log.d("kajal", "set intent")
+
         panasonicStdMap["serial"] = intent.getStringExtra("serial") ?: "unknown"
         panasonicNonStdMap["product_date"] = intent.getStringExtra("product_date") ?: "unknown"
         panasonicNonStdMap["health"] = intent.getIntExtra("health", 0).toString()
@@ -164,6 +168,7 @@ class MainActivity : AppCompatActivity() {
         stdApiTable.addView(stdTitleI)
 
         for ((key, value) in panasonicStdMap) {
+            Log.d("kajal", "update table")
             val tableRowI = inflater.inflate(R.layout.table_row, null, false)
             val keyDI = tableRowI.findViewById<TextView>(R.id.key_data)
             val valueDI = tableRowI.findViewById<TextView>(R.id.value_data)
