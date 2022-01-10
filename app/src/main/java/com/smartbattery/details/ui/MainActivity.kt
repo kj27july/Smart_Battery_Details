@@ -11,12 +11,9 @@ import com.smartbattery.details.R
 import com.smartbattery.details.receiver.ZebraBatteryReceiver
 import com.smartbattery.details.receiver.PanasonicBatteryReceiver
 import android.widget.TextView
-
 import android.widget.TableLayout
-
 import android.view.LayoutInflater
 import android.widget.Toast
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var stdApiTable: TableLayout
