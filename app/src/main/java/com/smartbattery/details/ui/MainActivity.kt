@@ -14,6 +14,8 @@ import android.widget.TextView
 import android.widget.TableLayout
 import android.view.LayoutInflater
 import android.widget.Toast
+import com.smartbattery.details.collectors.BatteryCollector
+import com.smartbattery.details.receiver.BluebirdBatteryReceiver
 
 class MainActivity : AppCompatActivity() {
     private lateinit var stdApiTable: TableLayout
@@ -23,10 +25,14 @@ class MainActivity : AppCompatActivity() {
     private var zebraNonStdMap = mutableMapOf<String, String>()
     private var panasonicStdMap = mutableMapOf<String, String>()
     private var panasonicNonStdMap = mutableMapOf<String, String>()
+    private var bluebirdStdMap = mutableMapOf<String, String>()
+    private var bluebirdNonStdMap = mutableMapOf<String, String>()
 
     private var instance: MainActivity? = null
     private var zebraBatteryReceiver: BroadcastReceiver? = null
     private var panasonicBatteryReceiver: BroadcastReceiver? = null
+    private var bluebirdBatteryReceiver: BroadcastReceiver? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +55,12 @@ class MainActivity : AppCompatActivity() {
             zebraBatteryReceiver = ZebraBatteryReceiver(instance!!)
             val zebraFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             registerReceiver(zebraBatteryReceiver, zebraFilter)
-        } else
+        } else if (Build.MANUFACTURER.equals("Bluebird", true)) {
+            bluebirdBatteryReceiver = BluebirdBatteryReceiver(instance!!)
+            val bluebirdFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            registerReceiver(bluebirdBatteryReceiver, bluebirdFilter)
+        }
+        else
             Toast.makeText(this, "Device not supported", Toast.LENGTH_LONG).show()
     }
 
@@ -65,6 +76,11 @@ class MainActivity : AppCompatActivity() {
                 true
             ) && panasonicBatteryReceiver != null
         ) unregisterReceiver(panasonicBatteryReceiver)
+        else if (Build.MANUFACTURER.equals(
+                "Bluebird",
+                true
+            ) && bluebirdBatteryReceiver != null
+        ) unregisterReceiver(bluebirdBatteryReceiver)
     }
 
     private fun getBatteryType(intent: Intent): Int {
@@ -135,6 +151,58 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun handleBluebirdIntent(intent: Intent) {
+        val batteryCollector = BatteryCollector()
+        bluebirdNonStdMap["is_smart_battery"] = batteryCollector.isSmartBattery().toString()
+        bluebirdNonStdMap["unique_id"] = batteryCollector.getMfgBatteryId()
+        bluebirdNonStdMap["manufacture_date"] = batteryCollector.getMfdDate()
+        bluebirdNonStdMap["part_number"] = batteryCollector.getPartNo()
+        bluebirdStdMap["serial_number"] = batteryCollector.getSerialNo()
+        bluebirdNonStdMap["designed_capacity"] = batteryCollector.getRatedCapacity().toString()
+        bluebirdNonStdMap["backup_voltage"] = batteryCollector.getBackupVoltage().toString()
+        bluebirdNonStdMap["health_percentage"] = batteryCollector.getHealthPercentage().toString()
+        bluebirdNonStdMap["full_capacity"] = batteryCollector.getCurrentCapacity().toString()
+        bluebirdNonStdMap["capacity"] = batteryCollector.getCurrentCharge().toString()
+        bluebirdNonStdMap["decommission_status"] = batteryCollector.getDecommissionStatus().toString()
+        bluebirdNonStdMap["cycle_count"] = batteryCollector.getCycleCount().toString()
+        bluebirdNonStdMap["cumulative_capacity"] = batteryCollector.getBaseCumulativeCharge().toString()
+        bluebirdNonStdMap["first_used"] = batteryCollector.getFirstUsedDate()
+        bluebirdNonStdMap["time_to_empty"] = batteryCollector.getTimeToEmpty().toString()
+        bluebirdNonStdMap["time_to_full"] =  batteryCollector.getTimeToFull().toString()
+
+        stdApiTable = findViewById(R.id.standard_api_table)
+        stdApiTable.removeAllViews()
+        nonStdApiTable = findViewById(R.id.non_standard_api_table)
+        nonStdApiTable.removeAllViews()
+
+        val inflater = this.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val stdTitleI = inflater.inflate(R.layout.table_title, null, false)
+        stdTitleI.findViewById<TextView>(R.id.header_title).text = "STANDARD API"
+        stdApiTable.addView(stdTitleI)
+
+        for ((key, value) in bluebirdStdMap) {
+            val tableRowI = inflater.inflate(R.layout.table_row, null, false)
+            val keyDI = tableRowI.findViewById<TextView>(R.id.key_data)
+            val valueDI = tableRowI.findViewById<TextView>(R.id.value_data)
+            keyDI.text = key
+            valueDI.text = value
+            stdApiTable.addView(tableRowI)
+        }
+
+        val nonStdTitleI = inflater.inflate(R.layout.table_title, null, false)
+        nonStdTitleI.findViewById<TextView>(R.id.header_title).text = "NON STANDARD API"
+        nonStdApiTable.addView(nonStdTitleI)
+
+        for ((key, value) in bluebirdNonStdMap) {
+            val tableRowI = inflater.inflate(R.layout.table_row, null, false)
+            val keyDI = tableRowI.findViewById<TextView>(R.id.key_data)
+            val valueDI = tableRowI.findViewById<TextView>(R.id.value_data)
+            keyDI.text = key
+            valueDI.text = value
+            nonStdApiTable.addView(tableRowI)
+        }
+    }
+
     fun handlePanasonicIntent(intent: Intent) {
         Log.d("kajal", "set intent")
 
@@ -187,4 +255,5 @@ class MainActivity : AppCompatActivity() {
             nonStdApiTable.addView(tableRowI)
         }
     }
+
 }
