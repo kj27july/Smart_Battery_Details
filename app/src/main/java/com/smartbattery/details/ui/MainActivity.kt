@@ -14,12 +14,19 @@ import android.widget.TextView
 import android.widget.TableLayout
 import android.view.LayoutInflater
 import android.widget.Toast
-import com.smartbattery.details.collectors.BatteryCollector
+import com.honeywell.osservice.data.OSConstant
+import com.honeywell.osservice.sdk.BatteryManager
+import com.honeywell.osservice.sdk.CreateListener
+import com.smartbattery.details.DetailsApp
+import com.smartbattery.details.collectors.BluebirdBatteryCollector
 import com.smartbattery.details.receiver.BluebirdBatteryReceiver
+import com.smartbattery.details.utils.SmartBatteryUtil
 
 class MainActivity : AppCompatActivity() {
+    val TAG = "SmartBattery"
     private lateinit var stdApiTable: TableLayout
     private lateinit var nonStdApiTable: TableLayout
+    private var mBatteryManager: BatteryManager? = null
 
     private var zebraStdMap = mutableMapOf<String, String>()
     private var zebraNonStdMap = mutableMapOf<String, String>()
@@ -27,6 +34,8 @@ class MainActivity : AppCompatActivity() {
     private var panasonicNonStdMap = mutableMapOf<String, String>()
     private var bluebirdStdMap = mutableMapOf<String, String>()
     private var bluebirdNonStdMap = mutableMapOf<String, String>()
+    private var honeywellStdMap = mutableMapOf<String, String>()
+    private var honeywellNonStdMap = mutableMapOf<String, String>()
 
     private var instance: MainActivity? = null
     private var zebraBatteryReceiver: BroadcastReceiver? = null
@@ -59,8 +68,21 @@ class MainActivity : AppCompatActivity() {
             bluebirdBatteryReceiver = BluebirdBatteryReceiver(instance!!)
             val bluebirdFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             registerReceiver(bluebirdBatteryReceiver, bluebirdFilter)
-        }
-        else
+        } else if (Build.MANUFACTURER.equals("Honeywell", true)) {
+            Log.d(TAG, "initBatteryManager")
+            BatteryManager.create(this, object : CreateListener<BatteryManager> {
+
+                override fun onCreate(batteryManager: BatteryManager) {
+                    Log.d(TAG, "onCreate-CreateListener: $batteryManager")
+                    mBatteryManager = batteryManager
+                    processHoneywell()
+                }
+
+                override fun onError(s: String) {
+                    Log.e(TAG, "onError: BatteryManager:$s")
+                }
+            })
+        } else
             Toast.makeText(this, "Device not supported", Toast.LENGTH_LONG).show()
     }
 
@@ -152,7 +174,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun handleBluebirdIntent(intent: Intent) {
-        val batteryCollector = BatteryCollector()
+        val batteryCollector = BluebirdBatteryCollector()
         bluebirdNonStdMap["is_smart_battery"] = batteryCollector.isSmartBattery().toString()
         bluebirdNonStdMap["unique_id"] = batteryCollector.getMfgBatteryId()
         bluebirdNonStdMap["manufacture_date"] = batteryCollector.getMfdDate()
@@ -163,12 +185,14 @@ class MainActivity : AppCompatActivity() {
         bluebirdNonStdMap["health_percentage"] = batteryCollector.getHealthPercentage().toString()
         bluebirdNonStdMap["full_capacity"] = batteryCollector.getCurrentCapacity().toString()
         bluebirdNonStdMap["capacity"] = batteryCollector.getCurrentCharge().toString()
-        bluebirdNonStdMap["decommission_status"] = batteryCollector.getDecommissionStatus().toString()
+        bluebirdNonStdMap["decommission_status"] =
+            batteryCollector.getDecommissionStatus().toString()
         bluebirdNonStdMap["cycle_count"] = batteryCollector.getCycleCount().toString()
-        bluebirdNonStdMap["cumulative_capacity"] = batteryCollector.getBaseCumulativeCharge().toString()
+        bluebirdNonStdMap["cumulative_capacity"] =
+            batteryCollector.getBaseCumulativeCharge().toString()
         bluebirdNonStdMap["first_used"] = batteryCollector.getFirstUsedDate()
         bluebirdNonStdMap["time_to_empty"] = batteryCollector.getTimeToEmpty().toString()
-        bluebirdNonStdMap["time_to_full"] =  batteryCollector.getTimeToFull().toString()
+        bluebirdNonStdMap["time_to_full"] = batteryCollector.getTimeToFull().toString()
 
         stdApiTable = findViewById(R.id.standard_api_table)
         stdApiTable.removeAllViews()
@@ -256,4 +280,75 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun getString(constName: String): String {
+        val data =
+            mBatteryManager!!.getBatteryGaugeInfo(constName).getString(constName) ?: ""
+        Log.d(TAG, "getString: $data")
+        return data
+    }
+
+    fun processHoneywell() {
+        honeywellStdMap["serial_number"] = getString(OSConstant.KEY_RESULT_BATTERY_SERIAL_NUMBER)
+        honeywellNonStdMap["authentication"] =
+            getString(OSConstant.KEY_RESULT_BATTERY_AUTHENTICATION)
+        honeywellNonStdMap["voltage"] = getString(OSConstant.KEY_RESULT_BATTERY_VOLTAGE)
+        honeywellNonStdMap["current"] = getString(OSConstant.KEY_RESULT_BATTERY_CURRENT)
+        honeywellNonStdMap["temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_TEMPERATURE)
+        honeywellNonStdMap["battery_level"] =
+            getString(OSConstant.KEY_RESULT_BATTERY_STATE_OF_CHARGE)
+        honeywellNonStdMap["rated_capacity(SOTI Calculation)"] =
+            SmartBatteryUtil.getRatedCapacity().toString()
+        honeywellNonStdMap["current_capacity"] =
+            getString(OSConstant.KEY_RESULT_BATTERY_FULL_CAPACITY)
+        honeywellNonStdMap["current_charge"] =
+            getString(OSConstant.KEY_RESULT_BATTERY_REMAINING_CAPACITY)
+        honeywellNonStdMap["full_cap_compensated"] =
+            getString(OSConstant.KEY_RESULT_BATTERY_FULL_CAPACITY_COMPENSATED)
+        honeywellNonStdMap["time_to_empty"] = getString(OSConstant.KEY_RESULT_BATTERY_TIME_TO_EMPTY)
+        honeywellNonStdMap["time_to_full"] = getString(OSConstant.KEY_RESULT_BATTERY_TIME_TO_FULL)
+        honeywellNonStdMap["manufacture_date"] =
+            getString(OSConstant.KEY_RESULT_BATTERY_MANUFACTURING_DATE)
+        honeywellNonStdMap["cycle_count"] = getString(OSConstant.KEY_RESULT_BATTERY_CYCLE_COUNT)
+        honeywellNonStdMap["age_capacity"] = getString(OSConstant.KEY_RESULT_BATTERY_AGE_CAPACITY)
+        honeywellNonStdMap["age_forecast"] = getString(OSConstant.KEY_RESULT_BATTERY_AGE_FORECAST)
+        honeywellNonStdMap["age_time"] = getString(OSConstant.KEY_RESULT_BATTERY_AGE_TIME)
+        honeywellNonStdMap["max_voltage"] = getString(OSConstant.KEY_RESULT_BATTERY_MAX_VOLTAGE)
+        honeywellNonStdMap["min_voltage"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_VOLTAGE)
+        honeywellNonStdMap["max_current"] = getString(OSConstant.KEY_RESULT_BATTERY_MAX_CURRENT)
+        honeywellNonStdMap["min_current"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_CURRENT)
+        honeywellNonStdMap["min_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MAX_TEMP)
+        honeywellNonStdMap["min_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_TEMP)
+
+        stdApiTable = findViewById(R.id.standard_api_table)
+        stdApiTable.removeAllViews()
+        nonStdApiTable = findViewById(R.id.non_standard_api_table)
+        nonStdApiTable.removeAllViews()
+
+        val inflater = this.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val stdTitleI = inflater.inflate(R.layout.table_title, null, false)
+        stdTitleI.findViewById<TextView>(R.id.header_title).text = "STANDARD API"
+        stdApiTable.addView(stdTitleI)
+
+        for ((key, value) in honeywellStdMap) {
+            val tableRowI = inflater.inflate(R.layout.table_row, null, false)
+            val keyDI = tableRowI.findViewById<TextView>(R.id.key_data)
+            val valueDI = tableRowI.findViewById<TextView>(R.id.value_data)
+            keyDI.text = key
+            valueDI.text = value
+            stdApiTable.addView(tableRowI)
+        }
+
+        val nonStdTitleI = inflater.inflate(R.layout.table_title, null, false)
+        nonStdTitleI.findViewById<TextView>(R.id.header_title).text = "NON STANDARD API"
+        nonStdApiTable.addView(nonStdTitleI)
+
+        for ((key, value) in honeywellNonStdMap) {
+            val tableRowI = inflater.inflate(R.layout.table_row, null, false)
+            val keyDI = tableRowI.findViewById<TextView>(R.id.key_data)
+            val valueDI = tableRowI.findViewById<TextView>(R.id.value_data)
+            keyDI.text = key
+            valueDI.text = value
+            nonStdApiTable.addView(tableRowI)
+        }
+    }
 }

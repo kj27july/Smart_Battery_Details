@@ -5,7 +5,7 @@ import android.content.IntentFilter
 import com.smartbattery.details.DetailsApp
 import com.smartbattery.details.ui.MainActivity
 
-class BatteryCollector(private val uniqueId: String? = null) {
+class BluebirdBatteryCollector(private val uniqueId: String? = null) {
     private var intent = register()
     //private var initParams = getConsumerInit()
 
