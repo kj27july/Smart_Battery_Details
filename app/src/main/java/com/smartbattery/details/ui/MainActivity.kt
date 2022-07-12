@@ -317,7 +317,7 @@ class MainActivity : AppCompatActivity() {
         honeywellNonStdMap["max_current"] = getString(OSConstant.KEY_RESULT_BATTERY_MAX_CURRENT)
         honeywellNonStdMap["min_current"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_CURRENT)
         honeywellNonStdMap["min_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MAX_TEMP)
-        honeywellNonStdMap["min_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_TEMP)
+        honeywellNonStdMap["mix_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_TEMP)
 
         stdApiTable = findViewById(R.id.standard_api_table)
         stdApiTable.removeAllViews()
