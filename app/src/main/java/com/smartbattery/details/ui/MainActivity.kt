@@ -304,6 +304,8 @@ class MainActivity : AppCompatActivity() {
             getString(OSConstant.KEY_RESULT_BATTERY_REMAINING_CAPACITY)
         honeywellNonStdMap["full_cap_compensated"] =
             getString(OSConstant.KEY_RESULT_BATTERY_FULL_CAPACITY_COMPENSATED)
+        honeywellNonStdMap["full_cap_not_compensated"] =
+            getString(OSConstant.KEY_RESULT_BATTERY_FULL_CAPACITY_NOT_COMPENSATED)
         honeywellNonStdMap["time_to_empty"] = getString(OSConstant.KEY_RESULT_BATTERY_TIME_TO_EMPTY)
         honeywellNonStdMap["time_to_full"] = getString(OSConstant.KEY_RESULT_BATTERY_TIME_TO_FULL)
         honeywellNonStdMap["manufacture_date"] =
@@ -316,8 +318,8 @@ class MainActivity : AppCompatActivity() {
         honeywellNonStdMap["min_voltage"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_VOLTAGE)
         honeywellNonStdMap["max_current"] = getString(OSConstant.KEY_RESULT_BATTERY_MAX_CURRENT)
         honeywellNonStdMap["min_current"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_CURRENT)
-        honeywellNonStdMap["min_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MAX_TEMP)
-        honeywellNonStdMap["mix_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_TEMP)
+        honeywellNonStdMap["mix_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MAX_TEMP)
+        honeywellNonStdMap["min_temperature"] = getString(OSConstant.KEY_RESULT_BATTERY_MIN_TEMP)
 
         stdApiTable = findViewById(R.id.standard_api_table)
         stdApiTable.removeAllViews()
